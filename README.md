@@ -30,10 +30,22 @@ DOVA-SYNDROME（OpenTracks）や魔王魂、Pixabay Music などのフリー音�
 そうした曲で遊びたいときは、上の「ファイルを選ぶ」から端末上で読み込んでください
 （ファイルは公開されません）。
 
+## 専用譜面: Feel Good (Sped Up) ← メイン曲
+
+`charts/feel-good.json` に **Syn Cole — Feel Good (Sped Up) [NCS Release]** の専用譜面が入っています。
+ゲームでこの曲のMP3ファイルを選ぶと、ファイル名／曲の長さで自動マッチして専用譜面で遊べます。
+
+- 原曲は124 BPM / 3:02 だが、このSped Up版ファイルは実測 **134 BPM / 175.6s**
+  （実ファイル解析で拍オフセット 0.025s に合わせ込み）
+- ノーツ数: EASY 191 / NORMAL 353 / HARD 573
+
+> Song: Syn Cole - Feel Good [NCS Release]
+> Music provided by NoCopyrightSounds
+> Free Download/Stream: https://ncs.io/feelgood
+
 ## 専用譜面: Sky High
 
-`charts/sky-high.json` に **Elektronomia — Sky High [NCS Release]** の専用譜面が入っています。
-ゲームでこの曲のMP3ファイルを選ぶと、ファイル名／曲の長さで自動マッチして専用譜面で遊べます。
+`charts/sky-high.json` に **Elektronomia — Sky High [NCS Release]** の専用譜面も入っています。
 
 - BPM 128（実ファイル解析で拍オフセット 0.240s に合わせ込み）、長さ 236.3s
 - ノーツ数: EASY 273 / NORMAL 505 / HARD 824
@@ -66,6 +78,7 @@ DOVA-SYNDROME（OpenTracks）や魔王魂、Pixabay Music などのフリー音�
 ## 構成
 
 - `index.html` — ゲーム本体（1ファイル完結、ライブラリなし）
+- `charts/feel-good.json` — Feel Good (Sped Up) 専用譜面（音声は含まない）
 - `charts/sky-high.json` — Sky High専用譜面（音声は含まない）
 - `songs/` — リポジトリ収録曲の置き場（任意）
 

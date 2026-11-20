@@ -43,6 +43,20 @@ DOVA-SYNDROME（OpenTracks）や魔王魂、Pixabay Music などのフリー音�
 > Music provided by NoCopyrightSounds
 > Free Download/Stream: https://ncs.io/feelgood
 
+## 専用譜面: FREEDOM DiVE（ボス曲）
+
+`charts/freedom-dive.json` に **xi — FREEDOM DiVE** の専用譜面が入っています。
+
+- BPM **222.22**（実ファイル解析で拍オフセット 0.190s）、長さ 147.0s、ジャンルは HAPPY HARDCORE
+- 元はBMSイベント「MAXBEAT」（2008）の曲で、発狂段位のボスとして知られる曲。
+  その性格に合わせて、この曲だけ難易度ごとの密度を割り増ししている
+- ノーツ数（5難易度）: EASY 129 / NORMAL 312 / HARD 501 / EXPERT 909 / MASTER 1153
+  （MASTER は約7.8ノーツ/秒。Cytus版HARDが1222ノーツなのと同水準の物量）
+
+> FREEDOM DiVE by xi (BMS, MAXBEAT 2008)
+
+音声ファイルはリポジトリに入っていません。各自のファイル（約2:27）を選ぶと自動マッチします。
+
 ## 専用譜面: Sky High
 
 `charts/sky-high.json` に **Elektronomia — Sky High [NCS Release]** の専用譜面も入っています。
@@ -102,6 +116,7 @@ DOVA-SYNDROME（OpenTracks）や魔王魂、Pixabay Music などのフリー音�
 ## 構成
 
 - `index.html` — ゲーム本体（1ファイル完結、ライブラリなし）
+- `charts/freedom-dive.json` — FREEDOM DiVE 専用譜面（音声は含まない）
 - `charts/feel-good.json` — Feel Good (Sped Up) 専用譜面（音声は含まない）
 - `charts/sky-high.json` — Sky High専用譜面（音声は含まない）
 - `songs/` — リポジトリ収録曲の置き場（任意）

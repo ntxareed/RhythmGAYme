@@ -107,6 +107,10 @@
         <td><b>Sky High</b><br><span style="color:var(--grey)">Elektronomia [NCS Release]</span></td>
         <td class="num">128</td><td class="num">202 / 399 / 681 / 1047 / 1249</td>
       </tr>
+      <tr>
+        <td><b>FREEDOM DiVE</b><br><span style="color:var(--grey)">xi（BMS / MAXBEAT）— ボス曲</span></td>
+        <td class="num">222.22</td><td class="num">129 / 312 / 501 / 909 / 1153</td>
+      </tr>
     </table>
     <p class="hint" style="margin-top:10px">音声ファイル自体は入っていない（NCSの規約で再配布できないため）。各自のファイルを選ぶと、ファイル名と長さで自動マッチする。通常版Feel Good（124 BPM）ではズレるので、必ずSped Up版のファイルを使うこと。</p>
   </section>
@@ -138,7 +142,8 @@
   <p class="keys mono">KEYS: D F J K　/　TAP: レーンタップ　/　ESC: ポーズ</p>
   <p class="credit">
     Song: Syn Cole - Feel Good [NCS Release] / Music provided by NoCopyrightSounds / Free Download/Stream: https://ncs.io/feelgood<br>
-    Song: Elektronomia - Sky High [NCS Release] / Music provided by NoCopyrightSounds / Free Download/Stream: https://ncs.io/skyhigh
+    Song: Elektronomia - Sky High [NCS Release] / Music provided by NoCopyrightSounds / Free Download/Stream: https://ncs.io/skyhigh<br>
+    FREEDOM DiVE by xi (BMS, MAXBEAT 2008)
   </p>
 </div>
 
@@ -217,7 +222,7 @@ $("diffs").addEventListener("click", e => {
 });
 $("diffNote").textContent = DIFF_NOTES[curDiff];
 
-Promise.all(["charts/feel-good.json", "charts/sky-high.json"].map(u =>
+Promise.all(["charts/feel-good.json", "charts/sky-high.json", "charts/freedom-dive.json"].map(u =>
   fetch(u).then(r => r.ok ? r.json() : null).catch(() => null)
 )).then(list => { dedicatedList = list.filter(Boolean); });
 

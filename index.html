@@ -68,6 +68,7 @@
     <input type="file" id="fileInput" accept="audio/*,.mp3,.ogg,.wav,.m4a" style="display:none">
     <p class="hint" style="margin-top:10px">選んだファイルはこの端末の中だけで読み込まれます。サーバーやGitHubには送信されません。</p>
     <div id="songList"></div>
+    <div id="chartBadge" style="display:none; margin-top:12px; padding:10px 12px; border-radius:10px; background:rgba(124,92,255,.15); border:1px solid rgba(124,92,255,.5); font-size:13px; line-height:1.7"></div>
   </div>
 
   <div class="card">
@@ -90,6 +91,15 @@
       <input type="number" id="offset" value="0" step="10" min="-300" max="300">
     </div>
     <p class="hint">譜面は曲を解析して自動で作ります（音の立ち上がりを検出）。曲が決まったらスタート。</p>
+  </div>
+
+  <div class="card" id="dedicatedCard">
+    <h2>専用譜面つきの曲</h2>
+    <p class="hint" style="font-size:13px; color:#bbc">
+      <b style="color:#eef">Elektronomia — Sky High [NCS Release]</b><br>
+      この曲のMP3ファイルを選ぶと、解析して作った専用譜面（EASY 273 / NORMAL 505 / HARD 824ノーツ、BPM 128）で遊べます。音声ファイル自体はリポジトリに入っていません（NCSの規約のため）。各自で持っているファイルを選んでください。
+    </p>
+    <p class="hint" style="margin-top:8px">Song: Elektronomia - Sky High [NCS Release]<br>Music provided by NoCopyrightSounds<br>Free Download/Stream: https://ncs.io/skyhigh</p>
   </div>
 
   <button id="startBtn" disabled>曲を選んでください</button>
@@ -144,6 +154,8 @@ $("judgeLine").style.bottom = "12%";
 laneEls.forEach(l => l.querySelector(".keyHint").style.bottom = "3%");
 
 let audioUrl = null, songName = "", chart = [], analysisBuf = null;
+let dedicated = null, matchedChart = null;
+fetch("charts/sky-high.json").then(r => r.ok ? r.json() : null).then(j => { dedicated = j; }).catch(() => {});
 let playing = false, paused = false, rafId = null;
 let score = 0, combo = 0, maxCombo = 0, counts = {perfect:0, great:0, good:0, miss:0}, judged = 0;
 
@@ -172,6 +184,18 @@ async function loadFile(file) {
     analysisBuf = await ctx.decodeAudioData(buf);
     ctx.close();
     $("fileName").textContent = file.name + "（" + Math.round(analysisBuf.duration) + "秒）";
+    matchedChart = null;
+    const badge = $("chartBadge");
+    if (dedicated) {
+      const norm = file.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const nameHit = norm.includes("skyhigh");
+      const durHit = Math.abs(analysisBuf.duration - dedicated.duration) < 1.5;
+      if (nameHit || durHit) {
+        matchedChart = dedicated;
+        badge.style.display = "block";
+        badge.innerHTML = "専用譜面で遊べます: <b>Elektronomia — Sky High</b>（BPM " + dedicated.bpm + "）<br><span style='color:#99a'>Song: Elektronomia - Sky High [NCS Release] / Music provided by NoCopyrightSounds / https://ncs.io/skyhigh</span>";
+      } else badge.style.display = "none";
+    }
     $("startBtn").disabled = false;
     $("startBtn").textContent = "▶ スタート";
   } catch (err) {
@@ -224,7 +248,12 @@ function judgeY() { return stage.clientHeight * 0.88; }
 
 function startGame() {
   if (!analysisBuf) return;
-  chart = generateChart(analysisBuf, $("difficulty").value);
+  if (matchedChart) {
+    const src = matchedChart.charts[$("difficulty").value] || [];
+    chart = src.map(n => ({ time: n.t, lane: n.lane, el: null, done: false }));
+  } else {
+    chart = generateChart(analysisBuf, $("difficulty").value);
+  }
   score = 0; combo = 0; maxCombo = 0; judged = 0;
   counts = { perfect: 0, great: 0, good: 0, miss: 0 };
   $("menu").style.display = "none"; $("result").style.display = "none"; $("game").style.display = "block";

@@ -5,117 +5,146 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>RhythmGAYme</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  :root { --accent:#7c5cff; --accent2:#00e5ff; }
-  body { background:#07070f; color:#eef; font-family:system-ui,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; min-height:100dvh; overflow-x:hidden; }
-  .wrap { max-width:520px; margin:0 auto; padding:20px 16px 40px; }
-  h1 { font-size:30px; letter-spacing:.04em; text-align:center; margin:14px 0 4px;
-       background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent; }
-  .sub { text-align:center; color:#99a; font-size:13px; margin-bottom:20px; }
-  .card { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:16px; padding:16px; margin-bottom:14px; }
-  .card h2 { font-size:15px; margin-bottom:10px; color:#ccd; }
-  #drop { border:2px dashed rgba(255,255,255,.25); border-radius:14px; padding:26px 12px; text-align:center; color:#aab; cursor:pointer; transition:.15s; }
-  #drop.over, #drop:hover { border-color:var(--accent2); color:#fff; background:rgba(0,229,255,.06); }
-  #drop .big { font-size:16px; font-weight:700; color:#eef; margin-bottom:6px; }
-  #fileName { font-size:13px; color:var(--accent2); word-break:break-all; }
-  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-  .row + .row { margin-top:10px; }
-  label { font-size:13px; color:#aab; }
-  select, input[type=number] { background:#14142a; color:#eef; border:1px solid rgba(255,255,255,.2); border-radius:8px; padding:8px 10px; font-size:14px; }
-  input[type=range] { flex:1; accent-color:var(--accent); }
-  button { background:linear-gradient(90deg,var(--accent),#4a7dff); color:#fff; border:0; border-radius:10px; padding:12px 18px; font-size:15px; font-weight:700; cursor:pointer; }
-  button:disabled { opacity:.35; cursor:default; }
-  button.ghost { background:rgba(255,255,255,.08); font-weight:600; }
-  #startBtn { width:100%; font-size:17px; padding:14px; }
-  .hint { font-size:12px; color:#778; line-height:1.7; }
+  /* DESIGN: record-sleeve / score-sheet. Paper + ink + one signal colour.
+     No gradients, no glass, no glow, no rounded cards — on purpose. */
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; border-radius:0 !important; }
+  :root { --paper:#f2efe9; --ink:#131313; --grey:#6f6c66; --line:#131313; --signal:#ffd400; }
+  body { background:var(--paper); color:var(--ink); font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",YuGothic,sans-serif; min-height:100dvh; }
+  .mono { font-family:ui-monospace,"SF Mono",Consolas,"Courier New",monospace; }
+  .wrap { max-width:580px; margin:0 auto; padding:28px 18px 48px; }
+  header { border-bottom:6px solid var(--ink); padding-bottom:14px; margin-bottom:8px; }
+  .kicker { font-size:11px; letter-spacing:.22em; color:var(--grey); margin-bottom:8px; }
+  h1 { font-size:44px; font-weight:900; letter-spacing:-.01em; line-height:1.02; }
+  h1 .y { background:var(--signal); padding:0 6px; }
+  .sub { margin-top:10px; font-size:14px; line-height:1.7; }
+  section { border-bottom:2px solid var(--line); padding:20px 0 22px; }
+  .sec-head { display:flex; align-items:baseline; gap:10px; margin-bottom:14px; }
+  .sec-no { font-size:12px; letter-spacing:.18em; background:var(--ink); color:var(--paper); padding:2px 7px; }
+  .sec-title { font-size:17px; font-weight:800; }
+  #drop { border:2px dashed var(--ink); padding:24px 14px; text-align:left; cursor:pointer; background:transparent; }
+  #drop.over { background:#e9e4d8; }
+  #drop .big { font-size:16px; font-weight:800; margin-bottom:5px; }
+  #drop .small, .hint { font-size:12.5px; color:var(--grey); line-height:1.75; }
+  #fileName { font-size:13px; margin-top:8px; word-break:break-all; font-weight:700; }
+  #chartBadge { display:none; margin-top:12px; border-left:6px solid var(--signal); background:#e9e4d8; padding:10px 12px; font-size:13px; line-height:1.7; }
+  table.tracks { width:100%; border-collapse:collapse; font-size:13.5px; }
+  table.tracks th { text-align:left; font-size:11px; letter-spacing:.14em; color:var(--grey); border-bottom:2px solid var(--ink); padding:6px 4px; }
+  table.tracks td { border-bottom:1px solid #c9c4b8; padding:9px 4px; vertical-align:top; }
+  table.tracks td.num { text-align:right; font-family:ui-monospace,Consolas,monospace; white-space:nowrap; }
+  .diffs { display:flex; flex-wrap:wrap; gap:0; border:2px solid var(--ink); width:fit-content; max-width:100%; }
+  .diffs button { background:transparent; color:var(--ink); border:0; border-right:2px solid var(--ink); padding:10px 13px; font-size:13px; font-weight:800; letter-spacing:.06em; cursor:pointer; font-family:ui-monospace,Consolas,monospace; }
+  .diffs button:last-child { border-right:0; }
+  .diffs button.on { background:var(--ink); color:var(--signal); }
+  .diff-note { font-size:12.5px; color:var(--grey); margin-top:9px; line-height:1.7; }
+  .setrow { display:flex; align-items:center; gap:12px; margin-top:16px; }
+  .setrow label { font-size:13px; font-weight:700; min-width:118px; }
+  input[type=range] { flex:1; accent-color:var(--ink); }
+  input[type=number] { width:84px; background:transparent; color:var(--ink); border:2px solid var(--ink); padding:7px 8px; font-size:14px; font-family:ui-monospace,Consolas,monospace; }
+  .val { font-family:ui-monospace,Consolas,monospace; font-size:13px; min-width:118px; }
+  #startBtn { width:100%; margin-top:24px; background:var(--ink); color:var(--paper); border:0; padding:17px; font-size:17px; font-weight:900; letter-spacing:.12em; cursor:pointer; }
+  #startBtn:disabled { background:#b9b4a8; color:#e8e4da; cursor:default; }
+  .keys { text-align:left; margin-top:12px; font-size:12px; color:var(--grey); letter-spacing:.08em; }
+  .credit { font-size:11.5px; color:var(--grey); line-height:1.8; margin-top:16px; }
+  button.plain { background:transparent; color:var(--ink); border:2px solid var(--ink); padding:9px 14px; font-weight:800; font-size:13px; cursor:pointer; margin:6px 6px 0 0; }
   /* game */
-  #game { display:none; position:fixed; inset:0; background:#05050c; z-index:10; }
-  #stage { position:relative; width:min(92vw,440px); height:100dvh; margin:0 auto; display:flex; }
-  .lane { flex:1; position:relative; border-left:1px solid rgba(255,255,255,.07); }
-  .lane:last-child { border-right:1px solid rgba(255,255,255,.07); }
-  .lane.hit { background:rgba(124,92,255,.14); }
-  .note { position:absolute; left:8%; width:84%; height:22px; border-radius:7px; transform:translateY(-50%);
-          background:linear-gradient(180deg,#a78bfa,#7c5cff); box-shadow:0 0 14px rgba(124,92,255,.8); pointer-events:none; }
-  .lane:nth-child(2) .note { background:linear-gradient(180deg,#67e8f9,#06b6d4); box-shadow:0 0 14px rgba(6,182,212,.8); }
-  .lane:nth-child(3) .note { background:linear-gradient(180deg,#67e8f9,#06b6d4); box-shadow:0 0 14px rgba(6,182,212,.8); }
-  #judgeLine { position:absolute; left:0; right:0; height:3px; background:rgba(255,255,255,.85); box-shadow:0 0 12px #fff; }
-  .keyHint { position:absolute; left:0; right:0; text-align:center; color:#889; font-size:15px; font-weight:700; }
-  #hud { position:absolute; top:10px; left:0; right:0; display:flex; justify-content:space-between; padding:0 14px; font-weight:700; z-index:3; pointer-events:none; }
-  #judgeText { position:absolute; top:22%; left:0; right:0; text-align:center; font-size:30px; font-weight:900; z-index:3; pointer-events:none; opacity:0; }
-  #comboText { position:absolute; top:30%; left:0; right:0; text-align:center; font-size:17px; color:#ccd; z-index:3; pointer-events:none; }
-  #pauseBtn { position:absolute; top:44px; right:10px; z-index:4; padding:7px 12px; font-size:13px; }
+  #game { display:none; position:fixed; inset:0; background:#0c0c0c; z-index:10; color:#f2efe9; }
+  #stage { position:relative; width:min(94vw,430px); height:100dvh; margin:0 auto; display:flex; border-left:1px solid #2b2b2b; border-right:1px solid #2b2b2b; }
+  .lane { flex:1; position:relative; border-left:1px solid #232323; }
+  .lane:first-child { border-left:0; }
+  .lane.hit { background:#1d1d1d; }
+  .note { position:absolute; left:7%; width:86%; height:20px; transform:translateY(-50%); background:#f2efe9; pointer-events:none; }
+  .note.chord { background:var(--signal); }
+  #judgeLine { position:absolute; left:0; right:0; height:4px; background:var(--signal); }
+  .keyHint { position:absolute; left:0; right:0; text-align:center; color:#8a8a8a; font-size:15px; font-weight:800; font-family:ui-monospace,Consolas,monospace; }
+  #hud { position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between; align-items:baseline; padding:12px 14px; z-index:3; pointer-events:none; font-family:ui-monospace,Consolas,monospace; }
+  #scoreHud { font-size:20px; font-weight:700; }
+  #songHud { font-size:11px; color:#8a8a8a; letter-spacing:.1em; }
+  #judgeText { position:absolute; top:21%; left:0; right:0; text-align:center; font-size:32px; font-weight:900; letter-spacing:.06em; z-index:3; pointer-events:none; opacity:0; }
+  #comboText { position:absolute; top:29%; left:0; right:0; text-align:center; font-size:16px; color:#cfcfcf; z-index:3; pointer-events:none; font-family:ui-monospace,Consolas,monospace; }
+  #pauseBtn { position:absolute; top:46px; right:10px; z-index:4; background:transparent; color:#f2efe9; border:2px solid #f2efe9; padding:6px 11px; font-size:12px; font-weight:800; cursor:pointer; }
   /* result */
-  #result { display:none; position:fixed; inset:0; background:rgba(4,4,12,.94); z-index:20; padding:30px 18px; overflow:auto; }
-  #result .box { max-width:420px; margin:0 auto; text-align:center; }
-  #rank { font-size:64px; font-weight:900; background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent; }
-  table { width:100%; margin:16px 0; border-collapse:collapse; font-size:15px; }
-  td { padding:7px 4px; border-bottom:1px solid rgba(255,255,255,.08); text-align:left; }
-  td:last-child { text-align:right; font-weight:700; }
+  #result { display:none; position:fixed; inset:0; background:var(--paper); z-index:20; padding:34px 18px; overflow:auto; }
+  #result .box { max-width:430px; margin:0 auto; }
+  #rank { display:inline-block; border:5px solid var(--ink); padding:2px 20px; font-size:58px; font-weight:900; transform:rotate(-3deg); margin:10px 0 4px; }
+  table.res { width:100%; margin:18px 0 22px; border-collapse:collapse; font-size:15px; }
+  table.res td { padding:8px 2px; border-bottom:1px solid #c9c4b8; }
+  table.res td:last-child { text-align:right; font-weight:800; font-family:ui-monospace,Consolas,monospace; }
+  .rbtns { display:flex; gap:10px; }
+  .rbtns button { flex:1; padding:14px; font-size:15px; font-weight:900; letter-spacing:.08em; cursor:pointer; border:2px solid var(--ink); }
+  #retryBtn { background:var(--ink); color:var(--paper); }
+  #backBtn { background:transparent; color:var(--ink); }
 </style>
 </head>
 <body>
 <div class="wrap" id="menu">
-  <h1>RhythmGAYme</h1>
-  <p class="sub">自分の曲ファイルで遊ぶ 4レーン音ゲー</p>
+  <header>
+    <div class="kicker mono">4-LANE RHYTHM GAME — FOR KEYBOARD &amp; THUMBS</div>
+    <h1>Rhythm<span class="y">GAY</span>me</h1>
+    <p class="sub">自分の曲ファイルで遊ぶ音ゲー。専用譜面のある曲は、ファイルを選ぶだけでその譜面になる。</p>
+  </header>
 
-  <div class="card">
-    <h2>1. 曲ファイルを選ぶ</h2>
+  <section>
+    <div class="sec-head"><span class="sec-no mono">01</span><span class="sec-title">曲ファイルを選ぶ</span></div>
     <div id="drop">
-      <div class="big">タップして曲を選ぶ / ここにドロップ</div>
-      <div>MP3 / OGG / WAV / M4A 対応</div>
-      <div id="fileName"></div>
+      <div class="big">タップして選ぶ／ここにドロップ</div>
+      <div class="small">MP3 / OGG / WAV / M4A。ファイルは端末の中だけで読み込まれ、どこにも送信されない。</div>
+      <div id="fileName" class="mono"></div>
     </div>
     <input type="file" id="fileInput" accept="audio/*,.mp3,.ogg,.wav,.m4a" style="display:none">
-    <p class="hint" style="margin-top:10px">選んだファイルはこの端末の中だけで読み込まれます。サーバーやGitHubには送信されません。</p>
+    <div id="chartBadge"></div>
     <div id="songList"></div>
-    <div id="chartBadge" style="display:none; margin-top:12px; padding:10px 12px; border-radius:10px; background:rgba(124,92,255,.15); border:1px solid rgba(124,92,255,.5); font-size:13px; line-height:1.7"></div>
-  </div>
+  </section>
 
-  <div class="card">
-    <h2>2. 設定</h2>
-    <div class="row">
-      <label>難易度</label>
-      <select id="difficulty">
-        <option value="easy">EASY（ノーツ少なめ）</option>
-        <option value="normal" selected>NORMAL</option>
-        <option value="hard">HARD（同時押しあり）</option>
-      </select>
+  <section>
+    <div class="sec-head"><span class="sec-no mono">02</span><span class="sec-title">専用譜面のある曲</span></div>
+    <table class="tracks">
+      <tr><th>TRACK</th><th style="text-align:right">BPM</th><th style="text-align:right">NOTES E / N / H / EX / M</th></tr>
+      <tr>
+        <td><b>Feel Good (Sped Up)</b><br><span style="color:var(--grey)">Syn Cole [NCS Release] — メイン曲</span></td>
+        <td class="num">134</td><td class="num">137 / 267 / 487 / 709 / 850</td>
+      </tr>
+      <tr>
+        <td><b>Sky High</b><br><span style="color:var(--grey)">Elektronomia [NCS Release]</span></td>
+        <td class="num">128</td><td class="num">202 / 399 / 681 / 1047 / 1249</td>
+      </tr>
+    </table>
+    <p class="hint" style="margin-top:10px">音声ファイル自体は入っていない（NCSの規約で再配布できないため）。各自のファイルを選ぶと、ファイル名と長さで自動マッチする。通常版Feel Good（124 BPM）ではズレるので、必ずSped Up版のファイルを使うこと。</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-no mono">03</span><span class="sec-title">設定</span></div>
+    <div class="diffs" id="diffs">
+      <button data-diff="easy">EASY</button>
+      <button data-diff="normal" class="on">NORMAL</button>
+      <button data-diff="hard">HARD</button>
+      <button data-diff="expert">EXPERT</button>
+      <button data-diff="master">MASTER</button>
     </div>
-    <div class="row">
+    <p class="diff-note" id="diffNote"></p>
+    <div class="setrow">
       <label>ノーツ速度</label>
-      <input type="range" id="speed" min="0.8" max="2" step="0.1" value="1.2">
-      <span id="speedVal">1.2x</span>
+      <input type="range" id="speed" min="0.5" max="3" step="0.1" value="1.2">
+      <span class="val" id="speedVal"></span>
     </div>
-    <div class="row">
-      <label>判定ずれ調整 (ms)</label>
+    <div class="setrow">
+      <label>判定ずれ調整</label>
       <input type="number" id="offset" value="0" step="10" min="-300" max="300">
+      <span class="val">ms（+で遅め）</span>
     </div>
-    <p class="hint">譜面は曲を解析して自動で作ります（音の立ち上がりを検出）。曲が決まったらスタート。</p>
-  </div>
-
-  <div class="card" id="dedicatedCard">
-    <h2>専用譜面つきの曲</h2>
-    <p class="hint" style="font-size:13px; color:#bbc">
-      <b style="color:#eef">Syn Cole — Feel Good (Sped Up) [NCS Release]</b> ← メイン曲<br>
-      この曲のMP3ファイル（Sped Up版、2:56）を選ぶと、解析して作った専用譜面（EASY 191 / NORMAL 353 / HARD 573ノーツ、BPM 134）で遊べます。
-    </p>
-    <p class="hint" style="font-size:13px; color:#bbc; margin-top:8px">
-      <b style="color:#eef">Elektronomia — Sky High [NCS Release]</b><br>
-      こちらも専用譜面あり（EASY 273 / NORMAL 505 / HARD 824ノーツ、BPM 128）。
-    </p>
-    <p class="hint" style="margin-top:8px">音声ファイル自体はリポジトリに入っていません（NCSの規約のため）。各自で持っているファイルを選んでください。<br><br>
-      Song: Syn Cole - Feel Good [NCS Release]<br>Music provided by NoCopyrightSounds<br>Free Download/Stream: https://ncs.io/feelgood<br><br>
-      Song: Elektronomia - Sky High [NCS Release]<br>Music provided by NoCopyrightSounds<br>Free Download/Stream: https://ncs.io/skyhigh</p>
-  </div>
+  </section>
 
   <button id="startBtn" disabled>曲を選んでください</button>
-  <p class="hint" style="margin-top:12px; text-align:center">キー: D / F / J / K　・　スマホ: レーンをタップ　・　Esc: ポーズ</p>
+  <p class="keys mono">KEYS: D F J K　/　TAP: レーンタップ　/　ESC: ポーズ</p>
+  <p class="credit">
+    Song: Syn Cole - Feel Good [NCS Release] / Music provided by NoCopyrightSounds / Free Download/Stream: https://ncs.io/feelgood<br>
+    Song: Elektronomia - Sky High [NCS Release] / Music provided by NoCopyrightSounds / Free Download/Stream: https://ncs.io/skyhigh
+  </p>
 </div>
 
 <div id="game">
   <div id="stage">
     <div id="hud"><span id="scoreHud">0</span><span id="songHud"></span></div>
-    <button id="pauseBtn" class="ghost">II ポーズ</button>
+    <button id="pauseBtn">II ポーズ</button>
     <div id="judgeText"></div>
     <div id="comboText"></div>
     <div id="judgeLine"></div>
@@ -124,9 +153,9 @@
 
 <div id="result">
   <div class="box">
-    <div style="color:#99a; font-size:14px">RESULT</div>
+    <div class="kicker mono">RESULT — SCORE SHEET</div>
     <div id="rank">S</div>
-    <table>
+    <table class="res">
       <tr><td>スコア</td><td id="rScore">0</td></tr>
       <tr><td>最大コンボ</td><td id="rCombo">0</td></tr>
       <tr><td>精度</td><td id="rAcc">0%</td></tr>
@@ -135,9 +164,9 @@
       <tr><td>GOOD</td><td id="rGood">0</td></tr>
       <tr><td>MISS</td><td id="rMiss">0</td></tr>
     </table>
-    <div class="row" style="justify-content:center">
+    <div class="rbtns">
       <button id="retryBtn">もう一度</button>
-      <button id="backBtn" class="ghost">曲選択に戻る</button>
+      <button id="backBtn">曲選択に戻る</button>
     </div>
   </div>
 </div>
@@ -149,7 +178,7 @@
 const $ = id => document.getElementById(id);
 const stage = $("stage"), audio = $("audio");
 const LANES = 4, KEYS = ["d","f","j","k"], KEY_LABEL = ["D","F","J","K"];
-const laneEls = [], noteLayer = [];
+const laneEls = [];
 for (let i = 0; i < LANES; i++) {
   const l = document.createElement("div"); l.className = "lane"; l.dataset.lane = i;
   const hint = document.createElement("div"); hint.className = "keyHint"; hint.textContent = KEY_LABEL[i];
@@ -161,61 +190,82 @@ laneEls.forEach(l => l.querySelector(".keyHint").style.bottom = "3%");
 
 let audioUrl = null, songName = "", chart = [], analysisBuf = null;
 let dedicatedList = [], matchedChart = null;
+let playing = false, paused = false, rafId = null;
+let score = 0, combo = 0, maxCombo = 0, counts = {perfect:0, great:0, good:0, miss:0}, judged = 0;
+let curDiff = "normal";
+
+const DIFF_NOTES = {
+  easy: "EASY — 拍のみ。初めての人向け。同時押しなし。",
+  normal: "NORMAL — 拍＋8分。音ゲー経験者なら初見で遊べる。",
+  hard: "HARD — 8分主体＋強い小節頭に同時押し。",
+  expert: "EXPERT — ドロップで16分、階段・トリル配置入り。同時押しあり。",
+  master: "MASTER — 音ゲーマー向け。16分乱打・階段・トリル・同時押しを高密度で配置。"
+};
+const DIFF = {
+  easy:   { minGap: 0.50, thresh: 2.6, chords: 0 },
+  normal: { minGap: 0.34, thresh: 2.0, chords: 0 },
+  hard:   { minGap: 0.24, thresh: 1.6, chords: 0.25 },
+  expert: { minGap: 0.17, thresh: 1.35, chords: 0.4 },
+  master: { minGap: 0.12, thresh: 1.15, chords: 0.55 }
+};
+$("diffs").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  curDiff = b.dataset.diff;
+  document.querySelectorAll("#diffs button").forEach(x => x.classList.toggle("on", x === b));
+  $("diffNote").textContent = DIFF_NOTES[curDiff];
+});
+$("diffNote").textContent = DIFF_NOTES[curDiff];
+
 Promise.all(["charts/feel-good.json", "charts/sky-high.json"].map(u =>
   fetch(u).then(r => r.ok ? r.json() : null).catch(() => null)
 )).then(list => { dedicatedList = list.filter(Boolean); });
-let playing = false, paused = false, rafId = null;
-let score = 0, combo = 0, maxCombo = 0, counts = {perfect:0, great:0, good:0, miss:0}, judged = 0;
 
-const DIFF = {
-  easy:   { minGap: 0.42, thresh: 1.9, chords: 0 },
-  normal: { minGap: 0.26, thresh: 1.55, chords: 0 },
-  hard:   { minGap: 0.16, thresh: 1.3, chords: 0.35 }
-};
+function updateSpeed() {
+  const v = Number($("speed").value);
+  $("speedVal").textContent = v.toFixed(1) + "x / " + Math.round(1500 / v) + "ms";
+}
+$("speed").addEventListener("input", updateSpeed); updateSpeed();
 
 $("drop").addEventListener("click", () => $("fileInput").click());
 $("drop").addEventListener("dragover", e => { e.preventDefault(); $("drop").classList.add("over"); });
 $("drop").addEventListener("dragleave", () => $("drop").classList.remove("over"));
 $("drop").addEventListener("drop", e => { e.preventDefault(); $("drop").classList.remove("over"); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
 $("fileInput").addEventListener("change", e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
-$("speed").addEventListener("input", () => $("speedVal").textContent = Number($("speed").value).toFixed(1) + "x");
 
 async function loadFile(file) {
   if (audioUrl) URL.revokeObjectURL(audioUrl);
   audioUrl = URL.createObjectURL(file);
   songName = file.name.replace(/\.[^.]+$/, "");
   audio.src = audioUrl;
-  $("fileName").textContent = "読み込み中… " + file.name;
+  $("fileName").textContent = "LOADING… " + file.name;
   try {
     const buf = await file.arrayBuffer();
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     analysisBuf = await ctx.decodeAudioData(buf);
     ctx.close();
-    $("fileName").textContent = file.name + "（" + Math.round(analysisBuf.duration) + "秒）";
+    $("fileName").textContent = file.name + " (" + Math.round(analysisBuf.duration) + "s)";
     matchedChart = null;
     const badge = $("chartBadge");
     badge.style.display = "none";
     const norm = file.name.toLowerCase().replace(/[^a-z0-9]/g, "");
     for (const dc of dedicatedList) {
       const key = dc.matchFileName.toLowerCase().replace(/[^a-z0-9]/g, "");
-      const nameHit = norm.includes(key);
-      const durHit = Math.abs(analysisBuf.duration - dc.duration) < 1.5;
-      if (nameHit || durHit) {
+      if (norm.includes(key) || Math.abs(analysisBuf.duration - dc.duration) < 1.5) {
         matchedChart = dc;
         badge.style.display = "block";
-        badge.innerHTML = "専用譜面で遊べます: <b>" + dc.artist + " — " + dc.title + "</b>（BPM " + dc.bpm + "）<br><span style='color:#99a'>" + dc.credit + "</span>";
+        badge.innerHTML = "専用譜面: <b>" + dc.artist + " — " + dc.title + "</b> (BPM " + dc.bpm + ")<br><span style='color:var(--grey)'>" + dc.credit + "</span>";
         break;
       }
     }
     $("startBtn").disabled = false;
-    $("startBtn").textContent = "▶ スタート";
+    $("startBtn").textContent = "▶ START";
   } catch (err) {
     $("fileName").textContent = "読み込めませんでした: " + file.name;
     analysisBuf = null; $("startBtn").disabled = true;
   }
 }
 
-// --- chart generation: energy-onset detection ---
+// --- auto chart for files without a dedicated chart: onset detection ---
 function generateChart(buf, diffKey) {
   const diff = DIFF[diffKey];
   const ch0 = buf.getChannelData(0);
@@ -229,14 +279,14 @@ function generateChart(buf, diffKey) {
     energy[f] = s;
   }
   const notes = [];
-  let lastTime = -1, seed = 12345, lastLane = -1, sameRun = 0;
+  let lastTime = -1, seed = 987654321, lastLane = -1, sameRun = 0;
   const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
   for (let f = 4; f < frames - 4; f++) {
     let mean = 0; for (let k = f - 4; k < f + 4; k++) mean += energy[k]; mean /= 8;
     const flux = energy[f] - energy[f - 1];
     if (energy[f] > mean * diff.thresh && flux > 0 && energy[f] >= energy[f - 1] && energy[f] >= energy[f + 1]) {
       const t = (f * hop) / sr;
-      if (t < 1.0 || t > buf.duration - 0.5) continue;
+      if (t < 1.0 || t > buf.duration - 0.8) continue;
       if (t - lastTime < diff.minGap) continue;
       lastTime = t;
       let lane = Math.floor(rnd() * LANES);
@@ -244,31 +294,34 @@ function generateChart(buf, diffKey) {
       else sameRun = 0;
       lastLane = lane;
       notes.push({ time: t, lane, el: null, done: false });
-      if (diff.chords > 0 && energy[f] > mean * diff.thresh * 1.8 && rnd() < diff.chords) {
-        let lane2 = (lane + 1 + Math.floor(rnd() * (LANES - 1))) % LANES;
-        notes.push({ time: t, lane: lane2, el: null, done: false });
+      if (diff.chords > 0 && energy[f] > mean * diff.thresh * 1.9 && rnd() < diff.chords) {
+        notes.push({ time: t, lane: (lane + 1 + Math.floor(rnd() * (LANES - 1))) % LANES, el: null, done: false });
       }
     }
   }
   return notes;
 }
 
-// --- game flow ---
 function travelTime() { return 1.5 / Number($("speed").value); }
 function judgeY() { return stage.clientHeight * 0.88; }
 
 function startGame() {
   if (!analysisBuf) return;
   if (matchedChart) {
-    const src = matchedChart.charts[$("difficulty").value] || [];
-    chart = src.map(n => ({ time: n.t, lane: n.lane, el: null, done: false }));
+    const src = matchedChart.charts[curDiff] || [];
+    const times = {};
+    src.forEach(n => { times[n.t] = (times[n.t] || 0) + 1; });
+    chart = src.map(n => ({ time: n.t, lane: n.lane, el: null, done: false, chord: times[n.t] > 1 }));
   } else {
-    chart = generateChart(analysisBuf, $("difficulty").value);
+    chart = generateChart(analysisBuf, curDiff);
+    const times = {};
+    chart.forEach(n => { times[n.time] = (times[n.time] || 0) + 1; });
+    chart.forEach(n => { n.chord = times[n.time] > 1; });
   }
   score = 0; combo = 0; maxCombo = 0; judged = 0;
   counts = { perfect: 0, great: 0, good: 0, miss: 0 };
   $("menu").style.display = "none"; $("result").style.display = "none"; $("game").style.display = "block";
-  $("songHud").textContent = songName;
+  $("songHud").textContent = (matchedChart ? matchedChart.title : songName) + " — " + curDiff.toUpperCase();
   playing = true; paused = false;
   audio.currentTime = 0;
   audio.play();
@@ -302,12 +355,12 @@ audio.addEventListener("ended", () => { if (playing) setTimeout(endGame, 600); }
 function tick() {
   if (!playing || paused) return;
   const now = audio.currentTime + Number($("offset").value) / 1000;
-  const travel = travelTime(), H = stage.clientHeight, jy = judgeY();
+  const travel = travelTime(), jy = judgeY();
   for (const n of chart) {
     const dt = n.time - now;
     if (n.done) continue;
     if (dt < travel && !n.el) {
-      const el = document.createElement("div"); el.className = "note";
+      const el = document.createElement("div"); el.className = "note" + (n.chord ? " chord" : "");
       laneEls[n.lane].appendChild(el); n.el = el;
     }
     if (n.el) n.el.style.top = (jy - (dt / travel) * jy) + "px";
@@ -320,11 +373,11 @@ function tick() {
 
 function showJudge(text, color) {
   const j = $("judgeText"); j.textContent = text; j.style.color = color;
-  j.style.opacity = 1; j.style.transition = "none"; j.style.transform = "scale(1.15)";
+  j.style.opacity = 1; j.style.transition = "none"; j.style.transform = "scale(1.12)";
   requestAnimationFrame(() => { j.style.transition = "opacity .35s, transform .35s"; j.style.opacity = 0; j.style.transform = "scale(1)"; });
   $("comboText").textContent = combo >= 2 ? combo + " COMBO" : "";
 }
-function registerMiss() { counts.miss++; combo = 0; judged++; showJudge("MISS", "#f87171"); }
+function registerMiss() { counts.miss++; combo = 0; judged++; showJudge("MISS", "#ff3b30"); }
 function pressLane(lane) {
   if (!playing || paused) return;
   laneEls[lane].classList.add("hit"); setTimeout(() => laneEls[lane].classList.remove("hit"), 90);
@@ -338,9 +391,9 @@ function pressLane(lane) {
   if (!best || bestAbs > 0.18) return;
   best.done = true; if (best.el) { best.el.remove(); best.el = null; }
   judged++; combo++; maxCombo = Math.max(maxCombo, combo);
-  if (bestAbs <= 0.07) { counts.perfect++; score += 1000; showJudge("PERFECT", "#facc15"); }
-  else if (bestAbs <= 0.12) { counts.great++; score += 700; showJudge("GREAT", "#4ade80"); }
-  else { counts.good++; score += 300; showJudge("GOOD", "#60a5fa"); }
+  if (bestAbs <= 0.07) { counts.perfect++; score += 1000; showJudge("PERFECT", "#ffd400"); }
+  else if (bestAbs <= 0.12) { counts.great++; score += 700; showJudge("GREAT", "#f2efe9"); }
+  else { counts.good++; score += 300; showJudge("GOOD", "#9a9a9a"); }
 }
 document.addEventListener("keydown", e => {
   if (e.repeat) return;
@@ -355,8 +408,7 @@ fetch("songs/index.json").then(r => r.ok ? r.json() : null).then(list => {
   const box = $("songList");
   box.innerHTML = "<p class='hint' style='margin-top:12px'>リポジトリ収録曲:</p>";
   list.forEach(s => {
-    const b = document.createElement("button"); b.className = "ghost"; b.textContent = s.title || s.file;
-    b.style.margin = "6px 6px 0 0";
+    const b = document.createElement("button"); b.className = "plain"; b.textContent = s.title || s.file;
     b.addEventListener("click", async () => {
       const res = await fetch("songs/" + s.file); const blob = await res.blob();
       loadFile(new File([blob], s.file));

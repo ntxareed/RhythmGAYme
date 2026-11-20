@@ -122,10 +122,11 @@
     </div>
     <p class="diff-note" id="diffNote"></p>
     <div class="setrow">
-      <label>ノーツ速度</label>
+      <label>譜面の流れ速さ</label>
       <input type="range" id="speed" min="0.5" max="3" step="0.1" value="1.2">
       <span class="val" id="speedVal"></span>
     </div>
+    <p class="diff-note">※ ハイ・スピード設定です。変わるのはノーツが流れてくる速さだけで、<b>曲の速さ・音程・譜面のタイミングは変わりません</b>。</p>
     <div class="setrow">
       <label>判定ずれ調整</label>
       <input type="number" id="offset" value="0" step="10" min="-300" max="300">
@@ -222,7 +223,7 @@ Promise.all(["charts/feel-good.json", "charts/sky-high.json"].map(u =>
 
 function updateSpeed() {
   const v = Number($("speed").value);
-  $("speedVal").textContent = v.toFixed(1) + "x / " + Math.round(1500 / v) + "ms";
+  $("speedVal").textContent = "HS " + v.toFixed(1) + " / 到達" + Math.round(1500 / v) + "ms";
 }
 $("speed").addEventListener("input", updateSpeed); updateSpeed();
 
